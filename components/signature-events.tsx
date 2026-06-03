@@ -3,6 +3,7 @@
 import { ChevronRight, Calendar, MapPin, Menu as MenuIcon } from "lucide-react"
 import { useState } from "react"
 import HamburgerMenu from "./hamburger-menu"
+import { useSignatureEvents } from "@/lib/events-store"
 
 interface EventCardProps {
   image: string
@@ -152,85 +153,31 @@ interface SignatureEventsProps {
 
 export default function SignatureEvents({ onNavigate }: SignatureEventsProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { events: signatureEventsData, isLoaded } = useSignatureEvents()
   
   const handleNavigate = (page: string) => {
     setIsMenuOpen(false)
     onNavigate?.(page)
   }
 
-  const events: (EventCardProps & { id?: string })[] = [
-    {
-      id: "babadook",
-      image: "https://f005.backblazeb2.com/file/b21of1firm/background/BDsig.png",
-      title: "BABADOOK 2026",
-      edition: "6TA EDICIÓN",
-      subtitle: "SEXTO ANIVERSARIO DE 1OF1.",
-      date: "30 Y 31 DE OCTUBRE",
-      location: "BARRANQUILLA",
-      stage: "ETAPA CREYENTES",
-      ticketPrice: "$45.000 COP",
-      ticketNote: "normalmente 60-120k",
-      vipPrice: "$500.000 COP",
-      vipNote: "NORMALMENTE $700K - $2M",
-    },
-    {
-      image: "https://f005.backblazeb2.com/file/b21of1firm/background/LLback.png",
-      id: "luna-llena",
-      title: "LUNA LLENA",
-      subtitle: "RUMBA DE PERREO & REGGAETON",
-      dateLabel: "FECHA PRÓXIMAMENTE",
-      stage: "ETAPA CREYENTES",
-      ticketPrice: "$45.000 COP",
-      vipPrice: "$500.000 COP",
-      vipNote: "NORMALMENTE $700K - $2M",
-    },
-    {
-      image: "https://f005.backblazeb2.com/file/b21of1firm/background/LFESTAhome.png",
-      id: "la-festa",
-      title: "LA FESTA",
-      subtitle: "RUMBA ÉPICA • CARNAVAL",
-      dateLabel: "FECHA PRÓXIMAMENTE",
-      stage: "ETAPA CREYENTES",
-      ticketPrice: "$45.000 COP",
-      vipPrice: "$500.000 COP",
-      vipNote: "NORMALMENTE $700K - $2M",
-    },
-    {
-      image: "https://f005.backblazeb2.com/file/b21of1firm/background/ANhome.jpg",
-      id: "animal",
-      title: "ANIMAL",
-      subtitle: "MÁS SALVAJE • +14 SIN ALCOHOL",
-      date: "SÁBADO 17 DE MAYO",
-      location: "DISCOLO NIGHT CLUB, BARRANQUILLA",
-      stage: "ETAPA CREYENTES",
-      ticketPrice: "$45.000 COP",
-      vipPrice: "$500.000 COP",
-      vipNote: "NORMALMENTE $700K - $2M",
-    },
-    {
-      image: "https://f005.backblazeb2.com/file/b21of1firm/background/MChome.png",
-      id: "celestial",
-      title: "MISS 1 OF 1 CELESTIAL",
-      subtitle: "CERTAMEN DE BELLEZA + AFTER PARTY",
-      location: "BARRANQUILLA",
-      dateLabel: "FECHA PRÓXIMAMENTE",
-      stage: "ETAPA CREYENTES",
-      ticketPrice: "$45.000 COP",
-      vipPrice: "$500.000 COP",
-      vipNote: "NORMALMENTE $700K - $2M",
-    },
-    {
-      image: "https://f005.backblazeb2.com/file/b21of1firm/background/CHAMPhome.png",
-      id: "championship",
-      title: "THE 1 OF 1 CHAMPIONSHIP",
-      subtitle: "TORNEO DE ARTES MARCIALES",
-      comingSoon: true,
-      comingSoonText: "COMING SOON",
-      ticketPrice: "",
-      vipPrice: "",
-      vipNote: "",
-    },
-  ]
+  // Transform events from store to display format
+  const events = signatureEventsData.map(event => ({
+    id: event.id,
+    image: event.image,
+    title: event.name,
+    edition: event.id === "babadook" ? "6TA EDICION" : undefined,
+    subtitle: event.subtitle,
+    date: event.date,
+    dateLabel: !event.date && event.id !== "championship" ? "FECHA PROXIMAMENTE" : undefined,
+    location: event.location,
+    stage: event.stage,
+    ticketPrice: event.ticketPrice || "",
+    ticketNote: event.id === "babadook" ? "normalmente 60-120k" : undefined,
+    vipPrice: event.vipPrice || "",
+    vipNote: event.vipNote || "",
+    comingSoon: event.ticketPrice === "COMING SOON",
+    comingSoonText: event.ticketPrice === "COMING SOON" ? "COMING SOON" : undefined,
+  }))
 
   return (
     <div className="min-h-screen bg-black text-white">

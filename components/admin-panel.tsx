@@ -20,28 +20,11 @@ import {
   Trash2
 } from "lucide-react"
 import AdminUniversePanel from "./admin-universe-panel"
+import { useAllEvents, type EventOption } from "@/lib/events-store"
 
 interface AdminPanelProps {
   onNavigate: (page: string) => void
   onLogout: () => void
-}
-
-interface EventOption {
-  id: string
-  name: string
-  subtitle: string
-  image: string
-  category: "signature" | "weekend"
-  isEditable: boolean
-  description?: string
-  date?: string
-  time?: string
-  location?: string
-  ticketPrice?: string
-  vipPrice?: string
-  vipNote?: string
-  stage?: string
-  countdownDate?: string
 }
 
 interface NewEventForm {
@@ -59,20 +42,6 @@ interface NewEventForm {
   category: "signature" | "weekend"
   countdownDate: string
 }
-
-const initialSignatureEvents: EventOption[] = [
-  { id: "babadook", name: "BABADOOK 2026", subtitle: "SEXTO ANIVERSARIO DE 1OF1", image: "https://f005.backblazeb2.com/file/b21of1firm/background/BDsig.png", category: "signature", isEditable: false, description: "6ta Edicion - Sexto aniversario", date: "30 Y 31 DE OCTUBRE", location: "BARRANQUILLA", ticketPrice: "$45.000 COP", vipPrice: "$500.000 COP", vipNote: "NORMALMENTE $700K - $2M", stage: "ETAPA CREYENTES", countdownDate: "2026-10-30T20:00" },
-  { id: "luna-llena", name: "LUNA LLENA", subtitle: "RUMBA DE PERREO & REGGAETON", image: "https://f005.backblazeb2.com/file/b21of1firm/background/LLback.png", category: "signature", isEditable: false, description: "Rumba de perreo y reggaeton", location: "BARRANQUILLA", ticketPrice: "$45.000 COP", vipPrice: "$500.000 COP", vipNote: "NORMALMENTE $700K - $2M", stage: "ETAPA CREYENTES", countdownDate: "2026-06-01T21:00" },
-  { id: "la-festa", name: "LA FESTA", subtitle: "RUMBA EPICA - CARNAVAL", image: "https://f005.backblazeb2.com/file/b21of1firm/background/LFESTAhome.png", category: "signature", isEditable: false, description: "Rumba epica de carnaval", location: "BARRANQUILLA", ticketPrice: "$45.000 COP", vipPrice: "$500.000 COP", vipNote: "NORMALMENTE $700K - $2M", stage: "ETAPA CREYENTES", countdownDate: "2027-02-15T22:00" },
-  { id: "animal", name: "ANIMAL", subtitle: "MAS SALVAJE - +14 SIN ALCOHOL", image: "https://f005.backblazeb2.com/file/b21of1firm/background/ANhome.jpg", category: "signature", isEditable: false, description: "Experiencia mas salvaje +14 sin alcohol", date: "SABADO 17 DE MAYO", location: "DISCOLO NIGHT CLUB, BARRANQUILLA", ticketPrice: "$45.000 COP", vipPrice: "$500.000 COP", vipNote: "NORMALMENTE $700K - $2M", stage: "ETAPA CREYENTES", countdownDate: "2027-05-17T19:00" },
-  { id: "celestial", name: "MISS 1 OF 1 CELESTIAL", subtitle: "CERTAMEN DE BELLEZA + AFTER PARTY", image: "https://f005.backblazeb2.com/file/b21of1firm/background/MChome.png", category: "signature", isEditable: false, description: "Certamen de belleza con after party", location: "BARRANQUILLA", ticketPrice: "$45.000 COP", vipPrice: "$500.000 COP", vipNote: "NORMALMENTE $700K - $2M", stage: "ETAPA CREYENTES", countdownDate: "2027-08-01T18:00" },
-  { id: "championship", name: "THE 1 OF 1 CHAMPIONSHIP", subtitle: "TORNEO DE ARTES MARCIALES", image: "https://f005.backblazeb2.com/file/b21of1firm/background/CHAMPhome.png", category: "signature", isEditable: false, description: "Torneo de artes marciales", location: "BARRANQUILLA", ticketPrice: "COMING SOON", vipPrice: "COMING SOON", vipNote: "", stage: "", countdownDate: "2027-12-01T17:00" },
-]
-
-const initialWeekendEvents: EventOption[] = [
-  { id: "weekend-1", name: "WEEKEND EVENTS", subtitle: "WEEKEND EXPERIENCE", image: "https://f005.backblazeb2.com/file/b21of1firm/background/SEhome.jpg", category: "weekend", isEditable: true, description: "Fines de semana increibles", location: "Barranquilla, Colombia", ticketPrice: "$40.000 COP", vipPrice: "$400.000 COP", vipNote: "Mesa VIP 10 personas" },
-  { id: "special-edition", name: "SPECIAL EDITION", subtitle: "LIMITED EXPERIENCE", image: "https://f005.backblazeb2.com/file/b21of1firm/background/BThome.png", category: "weekend", isEditable: true, description: "Ediciones limitadas y exclusivas", location: "Barranquilla, Colombia", ticketPrice: "$50.000 COP", vipPrice: "$450.000 COP", vipNote: "Mesa VIP 10 personas" },
-]
 
 // Helper para formatear fecha y hora del contador
 const formatCountdownDateTime = (dateTimeStr: string): string => {
@@ -93,9 +62,10 @@ const formatCountdownDateTime = (dateTimeStr: string): string => {
 }
 
 export default function AdminPanel({ onNavigate, onLogout }: AdminPanelProps) {
+  // Use centralized store for events
+  const { signatureEvents, weekendEvents, addEvent, updateEvent, deleteEvent, isLoaded } = useAllEvents()
+  
   const [selectedEvent, setSelectedEvent] = useState<string>("babadook")
-  const [signatureEvents, setSignatureEvents] = useState<EventOption[]>(initialSignatureEvents)
-  const [weekendEvents, setWeekendEvents] = useState<EventOption[]>(initialWeekendEvents)
   const [showNewEventModal, setShowNewEventModal] = useState(false)
   const [editingEvent, setEditingEvent] = useState<EventOption | null>(null)
   const [newEventForm, setNewEventForm] = useState<NewEventForm>({
@@ -141,7 +111,7 @@ export default function AdminPanel({ onNavigate, onLogout }: AdminPanelProps) {
       stage: newEventForm.stage
     }
     
-    setWeekendEvents(prev => [...prev, newEvent])
+    addEvent(newEvent)
     setNewEventForm({
       name: "",
       subtitle: "",
@@ -201,13 +171,9 @@ export default function AdminPanel({ onNavigate, onLogout }: AdminPanelProps) {
     }
     
     if (editingEvent.category === "signature") {
-      setSignatureEvents(prev => prev.map(e => 
-        e.id === editingEvent.id ? updatedEvent : e
-      ))
+      updateEvent(updatedEvent)
     } else {
-      setWeekendEvents(prev => prev.map(e => 
-        e.id === editingEvent.id ? updatedEvent : e
-      ))
+      updateEvent(updatedEvent)
     }
     
     setEditingEvent(null)
@@ -230,7 +196,7 @@ export default function AdminPanel({ onNavigate, onLogout }: AdminPanelProps) {
   }
 
   const handleDeleteEvent = (eventId: string) => {
-    setWeekendEvents(prev => prev.filter(e => e.id !== eventId))
+    deleteEvent(eventId)
     if (selectedEvent === eventId) {
       setSelectedEvent("babadook")
     }
