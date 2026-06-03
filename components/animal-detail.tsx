@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Calendar, MapPin, Clock, Play, Menu as MenuIcon, ArrowLeft, ChevronDown, ChevronUp, X, ChevronLeft, ChevronRight } from "lucide-react"
 import HamburgerMenu from "./hamburger-menu"
 import TicketSelectorModal from "./ticket-selector-modal"
+import { useEventById } from "@/lib/events-store"
 
 interface AnimalDetailProps {
   onNavigate?: (page: string) => void
@@ -64,8 +65,11 @@ export default function AnimalDetail({ onNavigate }: AnimalDetailProps) {
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0)
   const [isTicketModalOpen, setIsTicketModalOpen] = useState(false)
 
-  // Set target date for Animal - May 17, 2027
-  const targetDate = new Date("2027-05-17T00:00:00")
+  // Get event data from store
+  const { event, isLoaded } = useEventById("animal")
+
+  // Set target date for Animal from store or default
+  const targetDate = new Date(event?.countdownDate || "2027-05-17T00:00:00")
 
   const galleryMedia = [
     { type: "image", src: "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=400&q=80", alt: "Animal event 1" },

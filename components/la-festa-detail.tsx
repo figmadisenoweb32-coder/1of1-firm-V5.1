@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Calendar, MapPin, Clock, Play, Globe, Menu as MenuIcon, ArrowLeft, ChevronDown, ChevronUp, X, ChevronLeft, ChevronRight } from "lucide-react"
 import HamburgerMenu from "./hamburger-menu"
 import TicketSelectorModal from "./ticket-selector-modal"
+import { useEventById } from "@/lib/events-store"
 
 interface LaFestaDetailProps {
   onNavigate?: (page: string) => void
@@ -64,8 +65,11 @@ export default function LaFestaDetail({ onNavigate }: LaFestaDetailProps) {
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0)
   const [isTicketModalOpen, setIsTicketModalOpen] = useState(false)
 
-  // Set target date for La Festa (example: February 15, 2027 - Carnaval season)
-  const targetDate = new Date("2027-02-15T00:00:00")
+  // Get event data from store
+  const { event, isLoaded } = useEventById("la-festa")
+
+  // Set target date for La Festa from store or default
+  const targetDate = new Date(event?.countdownDate || "2027-02-15T00:00:00")
 
   const galleryMedia = [
     { type: "image", src: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&q=80", alt: "La Festa event 1" },

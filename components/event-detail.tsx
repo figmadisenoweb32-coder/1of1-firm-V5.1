@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Calendar, MapPin, Clock, Play, Menu as MenuIcon, ArrowLeft, ChevronDown, ChevronUp, X, ChevronLeft, ChevronRight } from "lucide-react"
 import HamburgerMenu from "./hamburger-menu"
 import TicketSelectorModal from "./ticket-selector-modal"
+import { useEventById } from "@/lib/events-store"
 
 interface EventDetailProps {
   onNavigate?: (page: string) => void
@@ -94,8 +95,11 @@ export default function EventDetail({ onNavigate }: EventDetailProps) {
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0)
   const [isTicketModalOpen, setIsTicketModalOpen] = useState(false)
   
-  // Target date: October 30, 2026
-  const targetDate = new Date('2026-10-30T00:00:00')
+  // Get event data from store
+  const { event, isLoaded } = useEventById("babadook")
+  
+  // Target date from store or default: October 30, 2026
+  const targetDate = new Date(event?.countdownDate || '2026-10-30T00:00:00')
 
   const galleryMedia = [
     { type: "image", src: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400&q=80", alt: "Babadook event 1" },
@@ -181,9 +185,9 @@ export default function EventDetail({ onNavigate }: EventDetailProps) {
           <div className="max-w-2xl">
             <span className="text-amber-500 text-[10px] sm:text-xs md:text-sm tracking-[0.15em] sm:tracking-[0.2em] uppercase">Signature Events</span>
             <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-thin tracking-wider mb-1 sm:mb-2 text-white leading-none" style={{ fontFamily: '"Inter", sans-serif' }}>
-            BADADOOK 2026
+            {event?.name || "BADADOOK 2026"}
           </h1>
-            <p className="text-red-500 text-sm sm:text-base md:text-lg lg:text-xl tracking-wider mb-2 sm:mb-4">6TA EDICIÓN</p>
+            <p className="text-red-500 text-sm sm:text-base md:text-lg lg:text-xl tracking-wider mb-2 sm:mb-4">{event?.description || "6TA EDICION"}</p>
             <p className="text-white/70 text-[10px] sm:text-xs md:text-sm lg:text-base leading-relaxed max-w-md">
               SEXTO ANIVERSARIO DE 1OF1.<br />
               SEIS AÑOS CONSTRUYENDO<br />
@@ -193,11 +197,11 @@ export default function EventDetail({ onNavigate }: EventDetailProps) {
             <div className="flex flex-col gap-2 sm:gap-3 mt-4 sm:mt-6">
               <div className="flex items-center gap-2 sm:gap-3 text-white/80">
                 <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-white/50" />
-                <span className="text-[10px] sm:text-xs md:text-sm tracking-wide">30 Y 31 DE OCTUBRE 2026</span>
+                <span className="text-[10px] sm:text-xs md:text-sm tracking-wide">{event?.date || "30 Y 31 DE OCTUBRE 2026"}</span>
               </div>
               <div className="flex items-center gap-2 sm:gap-3 text-white/80">
                 <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-white/50" />
-                <span className="text-[10px] sm:text-xs md:text-sm tracking-wide">BARRANQUILLA</span>
+                <span className="text-[10px] sm:text-xs md:text-sm tracking-wide">{event?.location || "BARRANQUILLA"}</span>
               </div>
             </div>
           </div>
@@ -214,7 +218,7 @@ export default function EventDetail({ onNavigate }: EventDetailProps) {
         {/* Stage Title */}
         <div className="flex items-center gap-2 sm:gap-4 justify-center mb-4 sm:mb-6 md:mb-8">
           <div className="h-px bg-gradient-to-r from-transparent to-amber-500/50 flex-1 max-w-[60px] sm:max-w-[80px] md:max-w-[100px]" />
-          <h2 className="text-amber-500 text-[10px] sm:text-xs md:text-sm tracking-[0.2em] sm:tracking-[0.3em] uppercase">Etapa Creyentes</h2>
+          <h2 className="text-amber-500 text-[10px] sm:text-xs md:text-sm tracking-[0.2em] sm:tracking-[0.3em] uppercase">{event?.stage || "Etapa Creyentes"}</h2>
           <div className="h-px bg-gradient-to-l from-transparent to-amber-500/50 flex-1 max-w-[60px] sm:max-w-[80px] md:max-w-[100px]" />
         </div>
 
@@ -236,7 +240,7 @@ export default function EventDetail({ onNavigate }: EventDetailProps) {
               </div>
             </div>
             <div className="mb-2 sm:mb-3 md:mb-4">
-              <span className="text-lg sm:text-2xl md:text-3xl font-light text-white">$45.000</span>
+              <span className="text-lg sm:text-2xl md:text-3xl font-light text-white">{event?.ticketPrice?.replace(" COP", "") || "$45.000"}</span>
               <span className="text-white/50 text-[10px] sm:text-xs md:text-sm ml-1 sm:ml-2">COP</span>
             </div>
             <button onClick={() => setIsTicketModalOpen(true)} className="w-full py-2 sm:py-2.5 md:py-3 border border-white/30 text-white text-[9px] sm:text-[10px] md:text-sm tracking-widest hover:bg-white/10 transition-colors">
@@ -266,10 +270,10 @@ export default function EventDetail({ onNavigate }: EventDetailProps) {
               </div>
             </div>
             <div className="mb-1">
-              <span className="text-lg sm:text-2xl md:text-3xl font-light text-amber-500">$500.000</span>
+              <span className="text-lg sm:text-2xl md:text-3xl font-light text-amber-500">{event?.vipPrice?.replace(" COP", "") || "$500.000"}</span>
               <span className="text-white/50 text-[10px] sm:text-xs md:text-sm ml-1 sm:ml-2">COP</span>
             </div>
-            <p className="text-white/40 text-[7px] sm:text-[9px] md:text-xs mb-2 sm:mb-3 md:mb-4">NORMALMENTE $700K - $2M</p>
+            <p className="text-white/40 text-[7px] sm:text-[9px] md:text-xs mb-2 sm:mb-3 md:mb-4">{event?.vipNote || "NORMALMENTE $700K - $2M"}</p>
             <button onClick={() => setIsTicketModalOpen(true)} className="w-full py-2 sm:py-2.5 md:py-3 border border-amber-500 text-amber-500 text-[9px] sm:text-[10px] md:text-sm tracking-widest hover:bg-amber-500 hover:text-black transition-colors">
               COMPRAR
             </button>

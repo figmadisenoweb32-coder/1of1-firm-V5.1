@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Calendar, MapPin, Clock, Play, Menu as MenuIcon, ArrowLeft, ChevronDown, ChevronUp, X, ChevronLeft, ChevronRight } from "lucide-react"
 import HamburgerMenu from "./hamburger-menu"
 import TicketSelectorModal from "./ticket-selector-modal"
+import { useEventById } from "@/lib/events-store"
 
 interface ChampionshipDetailProps {
   onNavigate?: (page: string) => void
@@ -67,9 +68,13 @@ export default function ChampionshipDetail({ onNavigate }: ChampionshipDetailPro
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0)
   const [isTicketModalOpen, setIsTicketModalOpen] = useState(false)
   
-  // Set target date for Championship (22 days from now as shown in design)
-  const targetDate = new Date()
-  targetDate.setDate(targetDate.getDate() + 22)
+  // Get event data from store
+  const { event, isLoaded } = useEventById("championship")
+  
+  // Set target date for Championship from store or default (22 days from now)
+  const defaultDate = new Date()
+  defaultDate.setDate(defaultDate.getDate() + 22)
+  const targetDate = new Date(event?.countdownDate || defaultDate.toISOString())
 
   const galleryMedia = [
     { type: "image", src: "https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=400&q=80", alt: "Championship event 1" },

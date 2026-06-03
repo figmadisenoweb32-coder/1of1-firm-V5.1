@@ -4,6 +4,7 @@ import { useState } from "react"
 import { MapPin, Menu as MenuIcon, ArrowLeft, Play, ChevronDown, ChevronUp, X, ChevronLeft, ChevronRight } from "lucide-react"
 import HamburgerMenu from "./hamburger-menu"
 import TicketSelectorModal from "./ticket-selector-modal"
+import { useEventById } from "@/lib/events-store"
 
 interface CelestialDetailProps {
   onNavigate?: (page: string) => void
@@ -32,6 +33,9 @@ export default function CelestialDetail({ onNavigate }: CelestialDetailProps) {
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0)
   const [isTicketModalOpen, setIsTicketModalOpen] = useState(false)
+
+  // Get event data from store
+  const { event, isLoaded } = useEventById("celestial")
 
   const galleryMedia = [
     { type: "image", src: "https://images.unsplash.com/photo-1519741497674-611481863552?w=400&q=80", alt: "Celestial event 1" },

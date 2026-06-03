@@ -60,6 +60,7 @@ function saveEvents(key: string, data: EventOption[]): void {
   if (typeof window === "undefined") return
   try {
     localStorage.setItem(key, JSON.stringify(data))
+    console.log("[v0] Events saved to localStorage:", key, data.length, "events")
     // Dispatch custom event to notify other components
     window.dispatchEvent(new CustomEvent("events-updated", { detail: { key } }))
   } catch (error) {
@@ -75,6 +76,7 @@ export function useSignatureEvents() {
   // Load from localStorage on mount
   useEffect(() => {
     const stored = getStoredEvents(SIGNATURE_EVENTS_KEY, defaultSignatureEvents)
+    console.log("[v0] Signature events loaded from localStorage:", stored.length, "events")
     setEvents(stored)
     setIsLoaded(true)
   }, [])

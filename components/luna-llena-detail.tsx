@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Calendar, MapPin, Clock, Play, Menu as MenuIcon, ArrowLeft, ChevronDown, ChevronUp, X, ChevronLeft, ChevronRight } from "lucide-react"
 import HamburgerMenu from "./hamburger-menu"
 import TicketSelectorModal from "./ticket-selector-modal"
+import { useEventById } from "@/lib/events-store"
 
 interface LunaLlenaDetailProps {
   onNavigate?: (page: string) => void
@@ -64,8 +65,11 @@ export default function LunaLlenaDetail({ onNavigate }: LunaLlenaDetailProps) {
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0)
   const [isTicketModalOpen, setIsTicketModalOpen] = useState(false)
   
-  // Set target date for Luna Llena (example: June 1, 2026)
-  const targetDate = new Date("2026-06-01T00:00:00")
+  // Get event data from store
+  const { event, isLoaded } = useEventById("luna-llena")
+  
+  // Set target date for Luna Llena from store or default
+  const targetDate = new Date(event?.countdownDate || "2026-06-01T00:00:00")
 
   const galleryMedia = [
     { type: "image", src: "https://images.unsplash.com/photo-1532767153582-b1a0e5145009?w=400&q=80", alt: "Luna Llena event 1" },
@@ -142,9 +146,9 @@ export default function LunaLlenaDetail({ onNavigate }: LunaLlenaDetailProps) {
         <div className="relative z-10 px-4 md:px-8 text-center">
           <span className="text-amber-500 text-xs tracking-[0.3em] mb-2 block">SIGNATURE EVENTS</span>
           <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-thin tracking-wider mb-1 sm:mb-2 text-white leading-none" style={{ fontFamily: '"Inter", sans-serif' }}>
-            LUNA LLENA
+            {event?.name || "LUNA LLENA"}
           </h1>
-          <p className="text-white/70 text-sm tracking-widest mb-8">RUMBA DE PERREO & REGGAETON</p>
+          <p className="text-white/70 text-sm tracking-widest mb-8">{event?.subtitle || "RUMBA DE PERREO & REGGAETON"}</p>
 
           {/* Date and Location */}
           <div className="space-y-3 text-left max-w-xs mx-auto">
@@ -157,7 +161,7 @@ export default function LunaLlenaDetail({ onNavigate }: LunaLlenaDetailProps) {
             </div>
             <div className="flex items-center gap-3">
               <MapPin className="w-4 h-4 text-white/60" />
-              <span className="text-white/80 text-sm tracking-wider">BARRANQUILLA</span>
+              <span className="text-white/80 text-sm tracking-wider">{event?.location || "BARRANQUILLA"}</span>
             </div>
           </div>
         </div>
@@ -202,7 +206,7 @@ export default function LunaLlenaDetail({ onNavigate }: LunaLlenaDetailProps) {
             <h3 className="text-white font-medium tracking-wider text-xs sm:text-sm mb-1">TICKET</h3>
             <p className="text-white/50 text-[8px] sm:text-[10px] tracking-wider mb-2 sm:mb-3">ACCESO GENERAL AL EVENTO</p>
             <div className="mb-2 sm:mb-4">
-              <span className="text-lg sm:text-2xl font-light text-white">$45.000</span>
+              <span className="text-lg sm:text-2xl font-light text-white">{event?.ticketPrice || "$45.000"}</span>
               <span className="text-white/60 text-[10px] sm:text-xs ml-1">COP</span>
             </div>
             <button onClick={() => setIsTicketModalOpen(true)} className="w-full py-1.5 sm:py-2 border border-white/30 text-white text-[10px] sm:text-xs tracking-widest hover:bg-white/10 transition-colors">
@@ -224,10 +228,10 @@ export default function LunaLlenaDetail({ onNavigate }: LunaLlenaDetailProps) {
             <p className="text-white/50 text-[8px] sm:text-[10px] tracking-wider">10 PERSONAS</p>
             <p className="text-white/40 text-[6px] sm:text-[8px] tracking-wider mb-2 sm:mb-3 leading-tight">EXPERIENCIA VIP PARA GRUPOS DE 10 PERSONAS</p>
             <div className="mb-1">
-              <span className="text-lg sm:text-2xl font-light text-amber-500">$500.000</span>
+              <span className="text-lg sm:text-2xl font-light text-amber-500">{event?.vipPrice || "$500.000"}</span>
               <span className="text-amber-500/60 text-[10px] sm:text-xs ml-1">COP</span>
             </div>
-            <p className="text-white/40 text-[6px] sm:text-[8px] mb-2 sm:mb-3">NORMALMENTE $700K - $2M</p>
+            <p className="text-white/40 text-[6px] sm:text-[8px] mb-2 sm:mb-3">{event?.vipNote || "NORMALMENTE $700K - $2M"}</p>
             <button onClick={() => setIsTicketModalOpen(true)} className="w-full py-1.5 sm:py-2 border border-amber-500/50 text-amber-500 text-[10px] sm:text-xs tracking-widest hover:bg-amber-500 hover:text-black transition-colors">
               COMPRAR
             </button>
